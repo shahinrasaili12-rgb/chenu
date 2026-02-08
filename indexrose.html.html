@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rose Day 🌹</title>
+  <style>
+    :root{
+      --bg1:#0f1020; --bg2:#2a1636;
+      --glass: rgba(255,255,255,.10);
+      --glass2: rgba(255,255,255,.14);
+      --border: rgba(255,255,255,.16);
+      --shadow: 0 22px 80px rgba(0,0,0,.45);
+      --accent1:#ff3b6a; --accent2:#ff7b5c;
+      --ok1:#2ee59d; --ok2:#45d0ff;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#fff;
+      background:
+        radial-gradient(900px 600px at 30% 20%, #3b2a5a, transparent 60%),
+        radial-gradient(900px 600px at 80% 70%, #7b2b5a, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      padding:18px;
+    }
+    .card{
+      width:min(94vw, 440px);
+      padding:22px 18px;
+      border-radius:22px;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .title{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:8px;
+    }
+    h1{ margin:0; font-size:20px; letter-spacing:.2px; }
+    .chip{
+      font-size:12px; padding:8px 10px; border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      white-space:nowrap;
+    }
+    .stage{
+      margin-top:14px;
+      border-radius:18px;
+      padding:18px 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      text-align:center;
+    }
+    .rose{
+      font-size:88px;
+      line-height:1;
+      display:inline-block;
+      filter: drop-shadow(0 12px 18px rgba(255,0,90,.18));
+      transform-origin: center;
+      transition: transform .35s ease, filter .35s ease;
+      user-select:none;
+    }
+    .rose.small{ font-size:80px; opacity:.95; }
+    .rose.bloom{
+      font-size:110px;
+      transform: scale(1.06);
+      filter: drop-shadow(0 18px 26px rgba(255,0,90,.28));
+      animation: floaty 1.7s ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0) scale(1.06); }
+      50%{ transform: translateY(-10px) scale(1.06); }
+    }
+
+    .msg{
+      margin-top:10px;
+      font-size:18px;
+      font-weight:800;
+    }
+    .sub{
+      margin-top:6px;
+      font-size:13px;
+      opacity:.88;
+    }
+
+    .row{ display:grid; gap:10px; margin-top:14px; }
+    button{
+      appearance:none; border:0; cursor:pointer; width:100%;
+      padding:14px 14px; border-radius:16px;
+      color:#fff; font-weight:800; font-size:16px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 14px 32px rgba(255,59,106,.22);
+      transition: transform .12s ease, opacity .2s ease;
+      touch-action: manipulation;
+    }
+    button:active{ transform: scale(.985); }
+    button.secondary{
+      background: linear-gradient(135deg, rgba(46,229,157,.95), rgba(69,208,255,.95));
+      box-shadow: 0 14px 32px rgba(69,208,255,.16);
+      position: relative;
+      overflow:hidden;
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    /* Hold progress bar inside the Water button */
+    .progress{
+      position:absolute; inset:0;
+      width:0%;
+      background: rgba(255,255,255,.18);
+      transform: translateX(-100%);
+      pointer-events:none;
+    }
+    .secondary .progress.active{
+      transform: translateX(0);
+      transition: width linear;
+    }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      opacity:.82;
+      line-height:1.35;
+    }
+
+    /* little droplets */
+    .drop{
+      position: fixed;
+      pointer-events:none;
+      opacity:.95;
+      animation: fall 900ms ease-out forwards;
+      filter: drop-shadow(0 10px 12px rgba(69,208,255,.12));
+    }
+    @keyframes fall{
+      from{ transform: translateY(-10px) scale(1); opacity: 1; }
+      to{ transform: translateY(140px) scale(1.15); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card" role="main">
+    <div class="title">
+      <h1>Rose Day Surprise 🌹</h1>
+      <span class="chip" id="statusChip">Status: Not watered</span>
+    </div>
+
+    <section class="stage" aria-live="polite">
+      <!-- Not bloomed (bud) -->
+      <div class="rose small" id="rose" aria-hidden="true">🥀</div>
+
+      <div class="msg" id="headline">Tap “Touch me”</div>
+      <div class="sub" id="subline">The rose isn’t bloomed yet… it needs water 💧</div>
+    </section>
+
+    <div class="row">
+      <button id="touchBtn">Touch me</button>
+
+      <!-- Hold for 5 sec -->
+      <button id="waterBtn" class="secondary" disabled>
+        <span class="progress" id="progress"></span>
+        Hold for 5 sec to water 💧
+      </button>
+    </div>
+
+    <div class="hint" id="hint">
+      Tip: Press and hold the water button until it completes. If you release early, it resets.
+    </div>
+  </main>
+
+  <script>
+    const statusChip = document.getElementById("statusChip");
+    const rose = document.getElementById("rose");
+    const headline = document.getElementById("headline");
+    const subline = document.getElementById("subline");
+    const touchBtn = document.getElementById("touchBtn");
+    const waterBtn = document.getElementById("waterBtn");
+    const progress = document.getElementById("progress");
+
+    let touched = false;
+    let watered = false;
+
+    // --- Step 1: Touch me ---
+    touchBtn.addEventListener("click", () => {
+      if (watered) return; // already done
+
+      touched = true;
+      headline.textContent = "Happy Rose Day 🌹";
+      subline.textContent = "But the rose is still not bloomed… water it to see the magic.";
+      statusChip.textContent = "Status: Needs water";
+      waterBtn.disabled = false;
+
+      // tiny wiggle
+      rose.animate(
+        [
+          { transform: "rotate(0deg) scale(1)" },
+          { transform: "rotate(-6deg) scale(1.02)" },
+          { transform: "rotate(6deg) scale(1.02)" },
+          { transform: "rotate(0deg) scale(1)" }
+        ],
+        { duration: 420, easing: "ease-out" }
+      );
+      if (navigator.vibrate) navigator.vibrate(25);
+    });
+
+    // --- Step 2: Hold 5 sec to water ---
+    const HOLD_MS = 5000;
+    let holdTimer = null;
+    let holdStart = 0;
+    let raf = null;
+
+    function spawnDrops() {
+      for (let i = 0; i < 10; i++) {
+        const d = document.createElement("div");
+        d.className = "drop";
+        d.textContent = "💧";
+        const rect = waterBtn.getBoundingClientRect();
+        const x = rect.left + Math.random() * rect.width;
+        const y = rect.top + 10 + Math.random() * 10;
+        d.style.left = x + "px";
+        d.style.top = y + "px";
+        d.style.fontSize = (14 + Math.random() * 10) + "px";
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 950);
+      }
+    }
+
+    function completeWatering() {
+      watered = true;
+
+      statusChip.textContent = "Status: Bloomed 🌸";
+      waterBtn.disabled = true;
+      touchBtn.disabled = true;
+
+      // Change rose to bloomed + big
+      rose.textContent = "🌹";
+      rose.classList.remove("small");
+      rose.classList.add("bloom");
+
+      headline.textContent = "Happy Rose Day, Ass-mita 🌹";
+      subline.textContent = "This rose is for you. You’re special 🤍";
+
+      spawnDrops();
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+    }
+
+    function setProgress(pct, animateDurationMs = 0) {
+      progress.style.width = pct + "%";
+      if (animateDurationMs > 0) {
+        progress.classList.add("active");
+        progress.style.transitionDuration = animateDurationMs + "ms";
+      } else {
+        progress.classList.remove("active");
+        progress.style.transitionDuration = "0ms";
+      }
+    }
+
+    function startHold() {
+      if (!touched || watered || waterBtn.disabled) return;
+
+      holdStart = performance.now();
+      setProgress(0, HOLD_MS);
+
+      // gentle feedback
+      statusChip.textContent = "Status: Watering…";
+      if (navigator.vibrate) navigator.vibrate(15);
+
+      // animate progress precisely
+      const tick = (t) => {
+        const elapsed = t - holdStart;
+        const pct = Math.min(100, (elapsed / HOLD_MS) * 100);
+        progress.style.width = pct + "%";
+
+        // some droplets while holding
+        if (Math.random() < 0.15) spawnDrops();
+
+        if (elapsed >= HOLD_MS) {
+          stopHold(true);
+          completeWatering();
+          return;
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+
+      // backup timer
+      holdTimer = setTimeout(() => {
+        stopHold(true);
+        completeWatering();
+      }, HOLD_MS);
+    }
+
+    function stopHold(success = false) {
+      clearTimeout(holdTimer);
+      holdTimer = null;
+      if (raf) cancelAnimationFrame(raf);
+      raf = null;
+
+      if (!success && !watered) {
+        // reset progress
+        setProgress(0, 0);
+        statusChip.textContent = "Status: Needs water";
+      } else {
+        setProgress(100, 0);
+      }
+    }
+
+    // Use pointer events for both mouse + touch
+    waterBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      startHold();
+    });
+
+    ["pointerup", "pointercancel", "pointerleave"].forEach(evt => {
+      waterBtn.addEventListener(evt, () => stopHold(false));
+    });
+  </script>
+</body>
+</html>
